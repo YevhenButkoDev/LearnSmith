@@ -1,20 +1,4 @@
-"""Pydantic models for course structure."""
+"""Pydantic models for course structure - DEPRECATED."""
 
-from pydantic import BaseModel
-from typing import List
-
-class Lesson(BaseModel):
-    title: str
-    content_markdown: str
-    key_concepts: List[str]
-    task_prompt: str
-    validation_logic: str
-
-class Module(BaseModel):
-    title: str
-    objectives: List[str]
-    lessons: List[str]
-
-class CoursePlan(BaseModel):
-    course_title: str
-    modules: List[Module]
+# Models moved to src/mentor_app/models.py
+# This file is kept for backward compatibility
