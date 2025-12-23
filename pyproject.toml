@@ -1,0 +1,27 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "mentor-app"
+version = "0.1.0"
+description = "AI-powered adaptive learning mentor"
+dependencies = [
+    "fastapi",
+    "uvicorn",
+    "sqlmodel",
+    "psycopg2-binary",
+    "pydantic",
+    "python-dotenv",
+    "langchain",
+    "langgraph",
+    "openai",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "pytest-asyncio",
+    "black",
+    "isort",
+]
