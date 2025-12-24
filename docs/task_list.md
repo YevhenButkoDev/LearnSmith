@@ -11,18 +11,18 @@
 
 ### Builder Module
 - [x] Create technical contract specification (2_builder_contract.md)
-- [ ] Implement ContentGenerator service
-- [ ] Create prompts for lesson content generation
+- [x] Implement ContentGenerator service
+- [x] Create prompts for lesson content generation
 - [ ] Implement QuizFactory for assessment creation
 - [ ] Add code example generation and validation
 - [ ] Create interactive element generators
-- [ ] Add practice task creation with test cases
-- [ ] Implement content caching mechanism
+- [x] Add practice task creation with test cases
+- [x] Implement content caching mechanism
 
 ### Infrastructure Module
 - [ ] Implement LLMClient wrapper with multiple provider support
-- [ ] Set up database models with SQLModel
-- [ ] Create CourseRepository for data persistence
+- [x] Set up database models with SQLModel
+- [x] Create CourseRepository for data persistence
 - [ ] Create UserRepository for user management
 - [ ] Implement database migrations
 - [ ] Add connection pooling and error handling

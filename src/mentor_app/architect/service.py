@@ -19,7 +19,7 @@ from mentor_app.architect.prompts import SYLLABUS_PROMPT
 class ArchitectService:
     def __init__(self, llm_client=None):
         self.llm_client = llm_client or ChatOpenAI(
-            model="gpt-4o",  # Using GPT-4o as GPT-5.2 is not available
+            model="gpt-5.2",  # Using GPT-4o as GPT-5.2 is not available
             api_key=os.getenv("OPENAI_API_KEY"),
             temperature=0.7
         )

@@ -1,15 +1,28 @@
-"""Database setup and configuration."""
+"""Database connection and session management."""
 
-from sqlmodel import SQLModel, create_engine, Session
 import os
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from .models import Base
 
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./mentor.db")
 
-engine = create_engine(DATABASE_URL)
-
-def create_db_and_tables():
-    SQLModel.metadata.create_all(engine)
-
-def get_session():
-    with Session(engine) as session:
-        yield session
+class DatabaseService:
+    def __init__(self, database_url: str = None):
+        self.database_url = database_url or os.getenv(
+            "DATABASE_URL",
+            f"postgresql://{os.getenv('DB_USER')}:{os.getenv('DB_PASSWORD')}@{os.getenv('DB_HOST')}:{os.getenv('DB_PORT')}/{os.getenv('DB_NAME')}"
+        )
+        self.engine = create_engine(self.database_url)
+        self.SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=self.engine)
+    
+    def create_tables(self):
+        """Create all database tables."""
+        Base.metadata.create_all(bind=self.engine)
+    
+    def get_session(self):
+        """Get database session."""
+        return self.SessionLocal()
+    
+    def drop_tables(self):
+        """Drop all database tables."""
+        Base.metadata.drop_all(bind=self.engine)
