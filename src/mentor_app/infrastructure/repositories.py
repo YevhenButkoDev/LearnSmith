@@ -1,10 +1,11 @@
 """Repository services for data persistence."""
 
+import uuid
 from typing import List, Optional
-from sqlalchemy.orm import Session
 from mentor_app.models import CoursePlan, Module as PydanticModule
 from mentor_app.builder.models import ModuleContent, LessonContent
 from .models import Course, Module, Lesson
+from .models import Module as DBModule
 from .database import DatabaseService
 
 
@@ -17,7 +18,7 @@ class CourseRepository:
         with self.db_service.get_session() as session:
             # Create course
             course = Course(
-                id=f"course_{hash(course_plan.course_title) % 100000}",
+                id=str(uuid.uuid4()),
                 course_title=course_plan.course_title,
                 estimated_duration=course_plan.estimated_duration,
                 difficulty_level=course_plan.difficulty_level,
@@ -37,18 +38,6 @@ class CourseRepository:
                     dependencies=module_data.dependencies
                 )
                 session.add(module)
-                
-                # Create lesson outlines
-                for lesson_outline in module_data.lessons:
-                    lesson = Lesson(
-                        id=lesson_outline.id,
-                        module_id=module.id,
-                        title=lesson_outline.title,
-                        type=lesson_outline.type,
-                        key_concepts=lesson_outline.key_concepts,
-                        difficulty=lesson_outline.difficulty
-                    )
-                    session.add(lesson)
             
             session.commit()
             return course.id
@@ -63,21 +52,35 @@ class ModuleRepository:
     def __init__(self, db_service: DatabaseService):
         self.db_service = db_service
     
-    def save_module_content(self, module_content: ModuleContent) -> str:
+    def save_module_content(self, course_id: str, module_id: str, module_content: ModuleContent) -> str:
         """Save detailed module content to database."""
         with self.db_service.get_session() as session:
-            # Update lessons with generated content
+
+            # Create lessons with generated content
             for lesson_content in module_content.lessons:
-                lesson = session.query(Lesson).filter(Lesson.id == lesson_content.id).first()
-                if lesson:
-                    lesson.content_markdown = lesson_content.content_markdown
-                    lesson.estimated_duration = lesson_content.estimated_duration
-                    lesson.code_examples = [ex.dict() for ex in lesson_content.code_examples]
-                    lesson.interactive_elements = [ie.dict() for ie in lesson_content.interactive_elements]
-                    lesson.practice_tasks = [pt.dict() for pt in lesson_content.practice_tasks]
+                lesson = Lesson(
+                    id=lesson_content.id,
+                    module_id=module_id,
+                    course_id=course_id,
+                    title=lesson_content.title,
+                    type=lesson_content.type,
+                    key_concepts=lesson_content.key_concepts,
+                    difficulty=lesson_content.difficulty,
+                    content_markdown=lesson_content.content_markdown,
+                    estimated_duration=lesson_content.estimated_duration,
+                    code_examples=[ex.dict() for ex in lesson_content.code_examples] if lesson_content.code_examples else [],
+                    interactive_elements=[ie.dict() for ie in lesson_content.interactive_elements] if lesson_content.interactive_elements else [],
+                    practice_tasks=[pt.dict() for pt in lesson_content.practice_tasks] if lesson_content.practice_tasks else []
+                )
+                session.add(lesson)
             
             session.commit()
-            return module_content.module_id
+            return module_id
+    
+    def get_modules_by_course(self, course_id: str) -> List[Module]:
+        """Get all modules for a course."""
+        with self.db_service.get_session() as session:
+            return session.query(Module).filter(Module.course_id == course_id).all()
     
     def get_module(self, module_id: str) -> Optional[Module]:
         """Get module by ID."""

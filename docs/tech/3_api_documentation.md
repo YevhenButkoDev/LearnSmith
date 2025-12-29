@@ -44,6 +44,33 @@ Creates a new course with syllabus generation.
       "description": "Master advanced join techniques",
       "learning_objectives": ["Understand inner/outer joins", "Apply self-joins"],
       "estimated_duration": 8,
+      "dependencies": []
+    }
+  ],
+  "created_at": "2025-12-24T17:10:21Z"
+}
+```
+
+### Get Course
+**GET** `/courses/{course_id}`
+
+Retrieves course details and complete structure including lessons if they have been generated.
+
+**Response:** `200 OK`
+```json
+{
+  "id": "course_123",
+  "course_title": "Advanced SQL",
+  "estimated_duration": 40,
+  "difficulty_level": "intermediate",
+  "prerequisites": ["Basic SQL"],
+  "modules": [
+    {
+      "id": "mod_1",
+      "title": "Complex Joins",
+      "description": "Master advanced join techniques",
+      "learning_objectives": ["Understand inner/outer joins", "Apply self-joins"],
+      "estimated_duration": 8,
       "dependencies": [],
       "lessons": [
         {
@@ -56,24 +83,6 @@ Creates a new course with syllabus generation.
       ]
     }
   ],
-  "created_at": "2025-12-24T17:10:21Z"
-}
-```
-
-### Get Course
-**GET** `/courses/{course_id}`
-
-Retrieves course details and structure.
-
-**Response:** `200 OK`
-```json
-{
-  "id": "course_123",
-  "course_title": "Advanced SQL",
-  "estimated_duration": 40,
-  "difficulty_level": "intermediate",
-  "prerequisites": ["Basic SQL"],
-  "modules": [...],
   "progress": {
     "completed_modules": 1,
     "total_modules": 4,
@@ -108,7 +117,15 @@ Generates detailed content for a module from its outline.
     "learning_objectives": ["Understand inner/outer joins"],
     "estimated_duration": 8,
     "dependencies": [],
-    "lessons": [...]
+    "lessons": [
+      {
+        "id": "lesson_1",
+        "title": "Inner vs Outer Joins",
+        "type": "theory",
+        "key_concepts": ["JOIN types", "NULL handling"],
+        "difficulty": "intermediate"
+      }
+    ]
   }
 }
 ```
@@ -219,7 +236,7 @@ Generates detailed lesson content from outline.
     "id": "lesson_1",
     "title": "Inner vs Outer Joins",
     "type": "theory",
-    "key_concepts": ["JOIN types"],
+    "key_concepts": ["JOIN types", "NULL handling"],
     "difficulty": "intermediate"
   }
 }

@@ -13,8 +13,8 @@ sys.path.insert(0, str(src_path))
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import HumanMessage
 
-from mentor_app.models import CoursePlan, UserContext
-from mentor_app.architect.prompts import SYLLABUS_PROMPT
+from mentor_app.models import CoursePlan, UserContext, Module, CourseContext
+from mentor_app.architect.prompts import SYLLABUS_PROMPT, MODULE_STRUCTURE_PROMPT
 
 class ArchitectService:
     def __init__(self, llm_client=None):
@@ -57,6 +57,42 @@ class ArchitectService:
         except (json.JSONDecodeError, ValueError) as e:
             print(f"Raw response: {response.content}")
             raise ValueError(f"Failed to parse LLM response: {e}")
+    
+    def generate_module_structure(
+        self,
+        module: Module,
+        course_context: CourseContext
+    ) -> Module:
+        """Generate detailed module structure with lessons."""
+        prompt = MODULE_STRUCTURE_PROMPT.format(
+            module_id=module.id,
+            module_title=module.title,
+            module_description=module.description,
+            learning_objectives=json.dumps(module.learning_objectives),
+            estimated_duration=module.estimated_duration,
+            dependencies=json.dumps(module.dependencies),
+            course_title=course_context.course_title,
+            difficulty_level=course_context.difficulty_level,
+            topic_domain=course_context.topic_domain
+        )
+        
+        response = self.llm_client.invoke([HumanMessage(content=prompt)])
+        
+        try:
+            # Extract JSON from markdown code blocks if present
+            content = response.content.strip()
+            if content.startswith('```json'):
+                content = content[7:]  # Remove ```json
+            if content.startswith('```'):
+                content = content[3:]   # Remove ```
+            if content.endswith('```'):
+                content = content[:-3]  # Remove closing ```
+            
+            module_data = json.loads(content.strip())
+            return Module(**module_data)
+        except (json.JSONDecodeError, ValueError) as e:
+            print(f"Raw response: {response.content}")
+            raise ValueError(f"Failed to parse LLM response: {e}")
 
 def main():
     """Test function for the Architect service."""
@@ -83,7 +119,7 @@ def main():
     print(f"Duration: {course_plan.estimated_duration} hours")
     print(f"Modules: {len(course_plan.modules)}")
     for module in course_plan.modules:
-        print(f"  - {module.title} ({len(module.lessons)} lessons)")
+        print(f"  - {module.title} ({module.estimated_duration} hours)")
 
 if __name__ == "__main__":
     main()

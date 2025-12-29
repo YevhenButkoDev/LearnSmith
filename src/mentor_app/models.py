@@ -25,7 +25,7 @@ class Module(BaseModel):
     learning_objectives: List[str]
     estimated_duration: int  # hours
     dependencies: List[str]  # module IDs this depends on
-    lessons: List[LessonOutline]
+    lessons: Optional[List[LessonOutline]] = None  # Only populated when detailed structure is generated
 
 class CoursePlan(BaseModel):
     course_title: str

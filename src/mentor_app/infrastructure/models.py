@@ -42,6 +42,7 @@ class Lesson(Base):
     
     id = Column(String, primary_key=True)
     module_id = Column(String, ForeignKey("modules.id"), nullable=False)
+    course_id = Column(String, ForeignKey("courses.id"), nullable=False)
     title = Column(String, nullable=False)
     type = Column(String, nullable=False)
     key_concepts = Column(JSON, nullable=False)

@@ -97,7 +97,6 @@ class LessonContent(BaseModel):
 
 
 class ModuleContent(BaseModel):
-    module_id: str
     title: str
     description: str
     learning_objectives: List[str]

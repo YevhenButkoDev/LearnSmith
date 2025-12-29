@@ -14,11 +14,7 @@ class DatabaseService:
         )
         self.engine = create_engine(self.database_url)
         self.SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=self.engine)
-    
-    def create_tables(self):
-        """Create all database tables."""
-        Base.metadata.create_all(bind=self.engine)
-    
+
     def get_session(self):
         """Get database session."""
         return self.SessionLocal()

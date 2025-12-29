@@ -13,6 +13,7 @@ from langchain_openai import ChatOpenAI
 from langchain_core.messages import HumanMessage
 
 from mentor_app.models import Module, CourseContext, UserContext
+from mentor_app.architect.service import ArchitectService
 from mentor_app.builder.models import (
     ModuleContent, LessonContent,
     ContentGenerationError, InvalidModuleError
@@ -26,6 +27,7 @@ class ContentGenerator:
             api_key=os.getenv("OPENAI_API_KEY"),
             temperature=0.7
         )
+        self.architect = ArchitectService()
 
     def generate_module_content(
         self,
@@ -45,7 +47,6 @@ class ContentGenerator:
                 lessons.append(lesson_content)
             
             return ModuleContent(
-                module_id=module.id,
                 title=module.title,
                 description=module.description,
                 learning_objectives=module.learning_objectives,
@@ -59,7 +60,7 @@ class ContentGenerator:
     def _validate_module(self, module: Module):
         """Validate module structure."""
         if not module.lessons:
-            raise InvalidModuleError("Module must have at least one lesson")
+            raise InvalidModuleError("Module must have lessons")
 
     def _generate_lesson_content(
         self,
@@ -173,63 +174,3 @@ Generate the complete lesson content now."""
             return max(15, word_count // 20)  # Quick assessment time
         else:
             return max(20, word_count // 15)
-
-
-def main():
-    """Test function for the Builder service."""
-    from dotenv import load_dotenv
-    from mentor_app.models import LessonOutline, Module, CourseContext, UserContext
-    
-    load_dotenv()
-    
-    builder = ContentGenerator()
-    
-    # Create test module
-    lesson_outlines = [
-        LessonOutline(
-            id="lesson_1",
-            title="Understanding SQL Joins",
-            type="theory",
-            key_concepts=["INNER JOIN", "LEFT JOIN", "RIGHT JOIN"],
-            difficulty="intermediate"
-        )
-    ]
-    
-    module = Module(
-        id="mod_sql_joins",
-        title="Advanced SQL Joins",
-        description="Master different types of SQL joins",
-        learning_objectives=["Understand JOIN types", "Write efficient queries"],
-        estimated_duration=120,
-        dependencies=[],
-        lessons=lesson_outlines
-    )
-    
-    course_context = CourseContext(
-        course_title="Advanced SQL",
-        difficulty_level="intermediate",
-        topic_domain="data",
-        user_instructions="Focus on performance optimization"
-    )
-    
-    user_context = UserContext(
-        skill_level="intermediate",
-        learning_style="hands-on",
-        time_commitment=8,
-        prior_knowledge=["basic SQL"]
-    )
-    
-    module_content = builder.generate_module_content(
-        module=module,
-        course_context=course_context,
-        user_context=user_context
-    )
-    
-    print(f"Generated module: {module_content.title}")
-    print(f"Lessons: {len(module_content.lessons)}")
-    for lesson in module_content.lessons:
-        print(f"  - {lesson.title} ({lesson.estimated_duration} min)")
-
-
-if __name__ == "__main__":
-    main()
